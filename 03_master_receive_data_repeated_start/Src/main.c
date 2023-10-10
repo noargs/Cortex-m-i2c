@@ -3,6 +3,7 @@
 #include "i2c_drivers_f446xx.h"
 
 //     -- [ I2C Master (STM32) and I2C Slave (Arduino board) communication ] --
+//                      ... Repeated Start ...
 //
 // External Button PC2 (Pull-down activated), connected to Vdd on button other side,
 //   on STM32 (Master) is pressed,
@@ -56,13 +57,13 @@ int main(void)
 
 	// `length information`
 	command_code = 0x51;
-	I2C_MasterSendData(I2Cx, &command_code, 1, SLAVE_ADDRESS);
-	I2C_MasterReceiveData(I2Cx, &len, 1, SLAVE_ADDRESS);
+	I2C_MasterSendData(I2Cx, &command_code, 1, SLAVE_ADDRESS, I2C_ENABLE_SR);
+	I2C_MasterReceiveData(I2Cx, &len, 1, SLAVE_ADDRESS, I2C_ENABLE_SR);
 
 	// `Actual data with above length`
 	command_code = 0x52;
-	I2C_MasterSendData(I2Cx, &command_code, 1, SLAVE_ADDRESS);
-	I2C_MasterReceiveData(I2Cx, receive_buffer, len, SLAVE_ADDRESS);
+	I2C_MasterSendData(I2Cx, &command_code, 1, SLAVE_ADDRESS, I2C_ENABLE_SR);
+	I2C_MasterReceiveData(I2Cx, receive_buffer, len, SLAVE_ADDRESS, I2C_DISABLE_SR);
   }
 }
 

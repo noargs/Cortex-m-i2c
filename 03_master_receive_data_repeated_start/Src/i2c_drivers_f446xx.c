@@ -94,7 +94,7 @@ uint32_t trise = 0;
 }
 
 
-void I2C_MasterSendData(I2C_TypeDef *i2cx, uint8_t *tx_buffer, uint32_t len, uint8_t slave_addr)
+void I2C_MasterSendData(I2C_TypeDef *i2cx, uint8_t *tx_buffer, uint32_t len, uint8_t slave_addr, uint8_t repeated_start)
 {
   //1. Generate the START condition
   i2cx->CR1 |= I2C_CR1_START;
@@ -135,10 +135,11 @@ void I2C_MasterSendData(I2C_TypeDef *i2cx, uint8_t *tx_buffer, uint32_t len, uin
 
   //8. Generate STOP condition and Master should wait for the completion of STOP condition
   //   Generating STOP, auto clears the BTF
-  i2cx->CR1 |= I2C_CR1_STOP;
+  if (repeated_start == I2C_DISABLE_SR)
+	i2cx->CR1 |= I2C_CR1_STOP;
 }
 
-void I2C_MasterReceiveData(I2C_TypeDef *i2cx, uint8_t *rx_buffer, uint8_t len, uint8_t slave_addr)
+void I2C_MasterReceiveData(I2C_TypeDef *i2cx, uint8_t *rx_buffer, uint8_t len, uint8_t slave_addr, uint8_t repeated_start)
 {
   //1. Generate the START condition
   i2cx->CR1 |= I2C_CR1_START;
@@ -169,7 +170,8 @@ void I2C_MasterReceiveData(I2C_TypeDef *i2cx, uint8_t *rx_buffer, uint8_t len, u
 	while ( (i2cx->SR1 & I2C_SR1_RXNE) == RESET);
 
     // Generate STOP condition
-	i2cx->CR1 |= I2C_CR1_STOP;
+	if (repeated_start == I2C_DISABLE_SR)
+		i2cx->CR1 |= I2C_CR1_STOP;
 
     // Read data into the buffer
 	*rx_buffer = i2cx->DR;
@@ -194,7 +196,8 @@ void I2C_MasterReceiveData(I2C_TypeDef *i2cx, uint8_t *rx_buffer, uint8_t len, u
 		i2cx->CR1 &= ~I2C_CR1_ACK;
 
 		// Generate STOP condition
-		i2cx->CR1 |= I2C_CR1_STOP;
+		if (repeated_start == I2C_DISABLE_SR)
+			i2cx->CR1 |= I2C_CR1_STOP;
 	  }
 
 	  // Read the data from DR in to buffer AND Increment the buffer address
