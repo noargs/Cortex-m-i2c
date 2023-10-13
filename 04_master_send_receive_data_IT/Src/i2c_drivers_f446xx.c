@@ -8,7 +8,7 @@ static void I2C_MasterHandleTxeIT(i2c_handle_t *i2c_handle);
 static void I2C_MasterHandleRxneIT(i2c_handle_t *i2c_handle);
 static void I2C_ClearAddrFlag(i2c_handle_t *i2c_handle);
 static void I2C_ReadStatusRegisters(i2c_handle_t *i2c_handle);
-static void I2C_CloseSendData(i2c_handle_t *i2c_handle);
+//static void I2C_CloseSendData(i2c_handle_t *i2c_handle);
 static void I2C_CloseReceiveData(i2c_handle_t *i2c_handle);
 static void I2C_PCLK_Enable(I2C_TypeDef *i2cx);
 
@@ -579,7 +579,7 @@ static void I2C_ReadStatusRegisters(i2c_handle_t *i2c_handle)
   (void)dummy_read;
 }
 
-static void I2C_CloseSendData(i2c_handle_t *i2c_handle)
+void I2C_CloseSendData(i2c_handle_t *i2c_handle)
 {
   // disable ITBUFEN control bit
   i2c_handle->i2cx->CR2 &= ~I2C_CR2_ITBUFEN;

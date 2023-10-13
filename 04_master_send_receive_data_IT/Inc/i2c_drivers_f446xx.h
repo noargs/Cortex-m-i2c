@@ -59,37 +59,38 @@ void I2C_IRQInterruptConfig(uint8_t irq_number, uint8_t enable_or_disable);
 void I2C_IRQPriorityConfig(uint8_t irq_number, uint32_t irq_priority);
 
 void I2C_ApplicationEventCallback(i2c_handle_t *i2c_handle, uint8_t APPLICATION_EVENT);
+void I2C_CloseSendData(i2c_handle_t *i2c_handle);
 
 
 // ARM Cortex Mx Processor NVIC ISERx register Addresses
-#define NVIC_ISER0                                  ((volatile uint32_t*)0xE000E100)
-#define NVIC_ISER1                                  ((volatile uint32_t*)0xE000E104)
-#define NVIC_ISER2                                  ((volatile uint32_t*)0xE000E108)
-#define NVIC_ISER3                                  ((volatile uint32_t*)0xE000E10C)
+#define NVIC_ISER0                  ((volatile uint32_t*)0xE000E100)
+#define NVIC_ISER1                  ((volatile uint32_t*)0xE000E104)
+#define NVIC_ISER2                  ((volatile uint32_t*)0xE000E108)
+#define NVIC_ISER3                  ((volatile uint32_t*)0xE000E10C)
 
 // ARM Cortex Mx Processor NVIC ICERx register addresses
-#define NVIC_ICER0                                  ((volatile uint32_t*)0xE000E180)
-#define NVIC_ICER1                                  ((volatile uint32_t*)0xE000E184)
-#define NVIC_ICER2                                  ((volatile uint32_t*)0xE000E188)
-#define NVIC_ICER3                                  ((volatile uint32_t*)0xE000E18C)
+#define NVIC_ICER0                  ((volatile uint32_t*)0xE000E180)
+#define NVIC_ICER1                  ((volatile uint32_t*)0xE000E184)
+#define NVIC_ICER2                  ((volatile uint32_t*)0xE000E188)
+#define NVIC_ICER3                  ((volatile uint32_t*)0xE000E18C)
 
 // ARM Cortex Mx Processor Priority Register IPR Address
-#define NVIC_PR_BASE_ADDR                           ((volatile uint32_t*)0xE000E400)
+#define NVIC_PR_BASE_ADDR           ((volatile uint32_t*)0xE000E400)
 
-#define NO_PR_BITS_IMPLEMENTED                      4
+#define NO_PR_BITS_IMPLEMENTED      4
 
 
 // I2C application events macros
-#define I2C_EV_TX_COMPLETE                0
-#define I2C_EV_RX_COMPLETE                1
-#define I2C_EV_STOP                       2
-#define I2C_ERROR_BERR                    3
-#define I2C_ERROR_ARLO                    4
-#define I2C_ERROR_AF                      5
-#define I2C_ERROR_OVR                     6
-#define I2C_ERROR_TIMEOUT                 7
-#define I2C_EV_DATA_REQUEST               8
-#define I2C_EV_DATA_RECEIVE               9
+#define I2C_EV_TX_COMPLETE          0
+#define I2C_EV_RX_COMPLETE          1
+#define I2C_EV_STOP                 2
+#define I2C_ERROR_BERR              3
+#define I2C_ERROR_ARLO              4
+#define I2C_ERROR_AF                5
+#define I2C_ERROR_OVR               6
+#define I2C_ERROR_TIMEOUT           7
+#define I2C_EV_DATA_REQUEST         8
+#define I2C_EV_DATA_RECEIVE         9
 
 
 #endif /* I2C_DRIVERS_F446XX_H_ */

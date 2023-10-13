@@ -1,9 +1,12 @@
+#include <stdio.h>
 #include <stdint.h>
 #include <string.h>
 #include "i2c_drivers_f446xx.h"
 
+//extern void initialise_monitor_handles();
+
 //     -- [ I2C Master (STM32) and I2C Slave (Arduino board) communication ] --
-//                      ... Repeated Start ...
+//                      ... Interrupt, Repeated Start ...
 //
 // External Button PC2 (Pull-down activated), connected to Vdd on button other side,
 //   on STM32 (Master) is pressed,
@@ -19,10 +22,14 @@
 
 #define GPIOCEN               (0x1UL << (2U))
 #define GPIOBEN               (0x1UL << (1U))
-#define USER_BUTTON_NUCLEO    2U
+#define EXTERNAL_BUTTON_PC2   2U
 
-uint8_t receive_buffer[];
-I2C_TypeDef *I2Cx = I2C1;
+uint8_t receive_buffer[32];
+i2c_handle_t i2c1_handle;
+
+// last I2C_MasterReceiveDataIT() needed to be over to get the printf() on OpenOCD console
+// hence causes delay and wait for transaction to be over
+//uint8_t rx_complete = RESET;
 
 // APB1
 // PB8       I2C1_SCL
@@ -39,31 +46,89 @@ int main(void)
   uint8_t command_code;
   uint8_t len;
 
+//  initialise_monitor_handles();
+
+  printf("Application is running\n");
+
+  i2c1_handle.i2cx = I2C1;
+
   GPIO_ButtonInit();
   I2C1_GPIOInits();
-  I2C_Inits(I2Cx);
+  I2C_Inits(i2c1_handle.i2cx);
+
+  // I2C IRQ configurations for Event and Error
+  I2C_IRQInterruptConfig(I2C1_EV_IRQn, ENABLE);
+  I2C_IRQInterruptConfig(I2C1_ER_IRQn, ENABLE);
 
   // Enable the I2C peripheral only when you configured it already
-  I2Cx->CR1 |= I2C_CR1_PE;
+  i2c1_handle.i2cx->CR1 |= I2C_CR1_PE;
 
   // PE=1 then only you can enable ACK [Reference Manual page:861]
   // If PE=0 then ACK cannot be enabled (i.e. 1)
-  I2Cx->CR1 |= I2C_CR1_ACK;
+  i2c1_handle.i2cx->CR1 |= I2C_CR1_ACK;
 
   while(1)
   {
-	while(! GPIO_ReadFromInputPin(GPIOC, USER_BUTTON_NUCLEO));
+	while(! GPIO_ReadFromInputPin(GPIOC, EXTERNAL_BUTTON_PC2));
 	delay();
 
 	// `length information`
 	command_code = 0x51;
-	I2C_MasterSendData(I2Cx, &command_code, 1, SLAVE_ADDRESS, I2C_ENABLE_SR);
-	I2C_MasterReceiveData(I2Cx, &len, 1, SLAVE_ADDRESS, I2C_ENABLE_SR);
+	while (I2C_MasterSendDataInterrupt(&i2c1_handle, &command_code, 1,
+		                               SLAVE_ADDRESS, I2C_ENABLE_SR) != I2C_READY);
+
+	while (I2C_MasterReceiveDataInterrupt(&i2c1_handle, &len, 1,
+		                               SLAVE_ADDRESS, I2C_ENABLE_SR) != I2C_READY);
+
 
 	// `Actual data with above length`
 	command_code = 0x52;
-	I2C_MasterSendData(I2Cx, &command_code, 1, SLAVE_ADDRESS, I2C_ENABLE_SR);
-	I2C_MasterReceiveData(I2Cx, receive_buffer, len, SLAVE_ADDRESS, I2C_DISABLE_SR);
+	while (I2C_MasterSendDataInterrupt(&i2c1_handle, &command_code, 1,
+		                               SLAVE_ADDRESS, I2C_ENABLE_SR) != I2C_READY);
+
+	while (I2C_MasterReceiveDataInterrupt(&i2c1_handle, receive_buffer, len,
+		                               SLAVE_ADDRESS, I2C_DISABLE_SR) != I2C_READY);
+
+//	rx_complete = RESET;
+//	while (rx_complete != SET){}
+
+	receive_buffer[len+1] = '\0';
+	printf("Data : %s", receive_buffer);
+
+//	rx_complete = RESET;
+  }
+
+}
+
+void I2C1_EV_IRQHandler (void)
+{
+  I2C_EV_IRQHandling(&i2c1_handle);
+}
+
+void I2C1_ER_IRQHandler (void)
+{
+  I2C_ERR_IRQHandling(&i2c1_handle);
+}
+
+void I2C_ApplicationEventCallback(i2c_handle_t *i2c_handle, uint8_t APPLICATION_EVENT)
+{
+  if (APPLICATION_EVENT == I2C_EV_TX_COMPLETE)
+  {
+//	printf("Tx is completed\n");
+  }
+  else if (APPLICATION_EVENT == I2C_EV_RX_COMPLETE)
+  {
+//	printf("Rx is compeleted\n");
+  }
+  else if (APPLICATION_EVENT == I2C_ERROR_AF)
+  {
+//	printf("Error: ACK Failure\n");
+
+	I2C_CloseSendData(&i2c1_handle);
+
+	i2c1_handle.i2cx->CR1 |= I2C_CR1_STOP;
+
+	while(1);
   }
 }
 
@@ -109,14 +174,11 @@ void GPIO_ButtonInit(void)
   // User button @ GPIOC (PC2) (Input)
   GPIOC->MODER &= ~(0x3UL << (4U));
 
-  // PA0 OTYPE (ouput push-pull)
-  //GPIOC->OTYPER &= ~(0x1UL << (2U));
-
-  // PA0 OSPEEDR (Fast speed)
+  // PC2 OSPEEDR (Fast speed)
   GPIOC->OSPEEDR &= ~(0x3UL << (4U));
   GPIOC->OSPEEDR |= (0x2UL << (4U));
 
-  // PA0 (No pull-up, pull-down)
+  // PC2 (No pull-up, pull-down)
   GPIOC->PUPDR &= ~(0x3UL << (4U));
   GPIOC->PUPDR |= (0x2UL << (4U));
 }

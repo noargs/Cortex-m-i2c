@@ -15,7 +15,7 @@
 
 #define GPIOCEN               (0x1UL << (2U))
 #define GPIOBEN               (0x1UL << (1U))
-#define USER_BUTTON_NUCLEO    2U
+#define EXTERNAL_BUTTON_PC2   2U
 
 I2C_TypeDef *I2Cx = I2C1;
 uint8_t data[] = "https://github.com\n";
@@ -39,7 +39,7 @@ int main(void)
 
   while(1)
   {
-	while(! GPIO_ReadFromInputPin(GPIOC, USER_BUTTON_NUCLEO));
+	while(! GPIO_ReadFromInputPin(GPIOC, EXTERNAL_BUTTON_PC2));
 
 	delay();
 
@@ -86,25 +86,17 @@ void GPIO_ButtonInit(void)
 {
   RCC->AHB1ENR |= GPIOCEN;
 
-  // User button @ GPIOC (PC13) (Input)
-//  GPIOC->MODER &= ~(0x3UL << (26U));
+  // User button @ GPIOC (PC2) (Input)
   GPIOC->MODER &= ~(0x3UL << (4U));
 
-  // PA0 OTYPE (ouput push-pull)
-  //GPIOC->OTYPER &= ~(0x1UL << (13U));
 
-  // PA0 OSPEEDR (Fast speed)
-//  GPIOC->OSPEEDR &= ~(0x3UL << (26U));
-//  GPIOC->OSPEEDR |= (0x2UL << (26U));
+  // PC2 OSPEEDR (Fast speed)
   GPIOC->OSPEEDR &= ~(0x3UL << (4U));
   GPIOC->OSPEEDR |= (0x2UL << (4U));
 
-  // PA0 (No pull-up, pull-down)
-//  GPIOC->PUPDR &= ~(0x3UL << (26U));
+  // PC2 (No pull-up, pull-down)
   GPIOC->PUPDR &= ~(0x3UL << (4U));
   GPIOC->PUPDR |= (0x2UL << (4U));
-//  GPIOC->PUPDR &= ~(0x3UL << (6U));
-//  GPIOC->PUPDR |= (0x1UL << (6U));
 }
 
 void delay(void)
