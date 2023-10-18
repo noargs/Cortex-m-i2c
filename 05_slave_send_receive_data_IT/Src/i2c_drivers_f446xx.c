@@ -95,7 +95,7 @@ uint32_t trise = 0;
 #ifdef SPEED_STANDARD
   trise = (RCC_GetPCLK1Value()/1000000U) + 1;     // Fpclk (8Mhz) x Trise (1000ns or 1 us) / (1000000 to convert 8Mhz to ns as f = 1/t)
 #else
-  trise = ((RCC_GetPCLK1Value() * 300) / 1000000000U) + 1; // 1MHz or 1xe10 not sure :`(
+  trise = ((RCC_GetPCLK1Value() * 300) / 1000000000U) + 1; // convert to Nano
 #endif
   i2cx->TRISE = (trise & 0x3F);
 }
@@ -352,7 +352,7 @@ void I2C_EV_IRQHandling (i2c_handle_t *i2c_handle)
 	}
   }
 
-  // 4. Handle `STOPF event` interrupt (only applicable in Slave mode)
+  // 4. Handle `STOPF event` interrupt (only applicable in Slave Receiver mode)
   c = i2c_handle->i2cx->SR1 & I2C_SR1_STOPF;
   if (itevten && c)
   {
@@ -373,11 +373,15 @@ void I2C_EV_IRQHandling (i2c_handle_t *i2c_handle)
 	if (i2c_handle->i2cx->SR2 & I2C_SR2_MSL)
 	{
 	  if (i2c_handle->tx_rx_state == I2C_BUSY_IN_TX)
-	  {
 		I2C_MasterHandleTxeIT(i2c_handle);
-	  }
 	}
-
+	else
+	{
+	  // The device is Slave (and also Slave transmitter as checking TXE)
+	  // Transmission bit TRA=1 means Slave in Transmitter mode [Reference Manual page:869]
+	  if (i2c_handle->i2cx->SR2 & I2C_SR2_TRA)
+		I2C_ApplicationEventCallback(i2c_handle, I2C_EV_DATA_RECEIVE);
+	}
   }
 
   // 6. Handle `RXNE event` interrupt
@@ -388,9 +392,13 @@ void I2C_EV_IRQHandling (i2c_handle_t *i2c_handle)
 	if (i2c_handle->i2cx->SR2 & I2C_SR2_MSL)
 	{
 	  if (i2c_handle->tx_rx_state == I2C_BUSY_IN_RX)
-	  {
 		I2C_MasterHandleRxneIT(i2c_handle);
-	  }
+	}
+	else
+	{
+	  // Transmission bit TRA=0 means Slave in Receiver mode [RM page:869]
+	  if (! (i2c_handle->i2cx->SR2 & I2C_SR2_TRA))
+		I2C_ApplicationEventCallback(i2c_handle, I2C_EV_DATA_RECEIVE);
 	}
   }
 }

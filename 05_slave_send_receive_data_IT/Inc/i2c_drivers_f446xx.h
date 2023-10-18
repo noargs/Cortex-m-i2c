@@ -47,9 +47,6 @@ void I2C_Inits (I2C_TypeDef *i2cx);
 void I2C_MasterSendData (I2C_TypeDef *i2cx, uint8_t *tx_buffer, uint32_t len, uint8_t slave_addr, uint8_t repeated_start);
 void I2C_MasterReceiveData (I2C_TypeDef *i2cx, uint8_t *rx_buffer, uint8_t len, uint8_t slave_addr, uint8_t repeated_start);
 
-void I2C_SlaveSendData(I2C_TypeDef *i2cx, uint8_t data);
-uint8_t I2C_SlaveReceiveData(I2C_TypeDef *i2cx);
-
 uint8_t GPIO_ReadFromInputPin (GPIO_TypeDef *gpiox, uint8_t pin_number);
 
 uint8_t I2C_MasterSendDataInterrupt (i2c_handle_t *i2c_handle, uint8_t *tx_buffer, uint32_t length, uint8_t slave_address, uint8_t repeated_start);
@@ -63,6 +60,9 @@ void I2C_IRQPriorityConfig(uint8_t irq_number, uint32_t irq_priority);
 
 void I2C_ApplicationEventCallback(i2c_handle_t *i2c_handle, uint8_t APPLICATION_EVENT);
 void I2C_CloseSendData(i2c_handle_t *i2c_handle);
+
+void I2C_SlaveSendData(I2C_TypeDef *i2cx, uint8_t data);
+uint8_t I2C_SlaveReceiveData(I2C_TypeDef *i2cx);
 
 
 // ARM Cortex Mx Processor NVIC ISERx register Addresses

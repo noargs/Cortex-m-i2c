@@ -5,7 +5,7 @@
 //     -- [ I2C Slave (STM32) and I2C Master (Arduino board) communication ] --
 //                              ... Interrupt ...
 //
-// Master (Arduino), should read and display data from (STM32) Slave
+// Master (Arduino), should read and display data from (STM32) Slave (Slave transmission / Request for Data)
 // First Master (Arduino) has to get the length of the data from the Slave (STM32) to read
 //   subsequent data from the Slave
 //
@@ -44,12 +44,22 @@ int main(void)
   I2C_IRQInterruptConfig(I2C1_EV_IRQn, ENABLE);
   I2C_IRQInterruptConfig(I2C1_ER_IRQn, ENABLE);
 
+  //It has to be enabled to get the interrupt as in master mode it was enabled in the Driver layer
+  // Enable ITBUFEN control bit
+  i2c_handle->i2cx->CR2 |= I2C_CR2_ITBUFEN;
+  // Enable ITEVTEN control bit
+  i2c_handle->i2cx->CR2 |= I2C_CR2_ITEVTEN;
+  // Enable ITERREN control bit
+  i2c_handle->i2cx->CR2 |= I2C_CR2_ITERREN;
+
   // Enable the I2C peripheral only when you configured it already
   i2c1_handle.i2cx->CR1 |= I2C_CR1_PE;
 
   // PE=1 then only you can enable ACK [Reference Manual page:861]
   // If PE=0 then ACK cannot be enabled (i.e. 1)
   i2c1_handle.i2cx->CR1 |= I2C_CR1_ACK;
+
+  while (1);
 
 }
 
@@ -65,23 +75,39 @@ void I2C1_ER_IRQHandler (void)
 
 void I2C_ApplicationEventCallback(i2c_handle_t *i2c_handle, uint8_t APPLICATION_EVENT)
 {
-  if (APPLICATION_EVENT == I2C_EV_TX_COMPLETE)
+  static uint8_t command_code = 0;
+  static uint8_t count = 0;
+
+  if (APPLICATION_EVENT == I2C_EV_DATA_REQUEST)
   {
-//	printf("Tx is completed\n");
+	// 0x51 Master request for data `length information`
+	if (command_code == 0x51)
+	{
+	  I2C_SlaveSendData(i2c_handle->i2cx, strlen((char*)tx_buffer));
+	}
+	// 0x52 Master request for data `actual data`
+	else if (command_code == 0x52)
+	{
+	  I2C_SlaveSendData(i2c_handle->i2cx, tx_buffer[count++]);
+	}
   }
-  else if (APPLICATION_EVENT == I2C_EV_RX_COMPLETE)
+  else if (APPLICATION_EVENT == I2C_EV_DATA_RECEIVE)
   {
-//	printf("Rx is compeleted\n");
+	// Master send data (i.e. command code) 0x51 or 0x52
+	command_code = I2C_SlaveReceiveData(i2c_handle->i2cx);
   }
   else if (APPLICATION_EVENT == I2C_ERROR_AF)
   {
-//	printf("Error: ACK Failure\n");
-
-	I2C_CloseSendData(&i2c1_handle);
-
-	i2c1_handle.i2cx->CR1 |= I2C_CR1_STOP;
-
-	while(1);
+	// Only occurs in Slave Tx, Master has sent NACK hence Slave avoid sending more data
+	command_code=0xFF;
+	count=0;
+//	I2C_CloseSendData(&i2c1_handle);
+//	i2c1_handle.i2cx->CR1 |= I2C_CR1_STOP;
+//	while(1);
+  }
+  else if (APPLICATION_EVENT == I2C_EV_STOP)
+  {
+	// Only occurs in Slave Rx, Master ended the I2C communication with the Slave
   }
 }
 
