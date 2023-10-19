@@ -3,11 +3,11 @@
 #include "i2c_drivers_f446xx.h"
 
 //     -- [ I2C Slave (STM32) and I2C Master (Arduino board) communication ] --
-//                              ... Interrupt ...
+//  ... Slave send more than 32 bytes (Arduino wire lib workaround) Interrupt ...
 //
 // Run the STM32 code in the Discovery board, open Arduino serial monitor Tools > Serial Monitor
 // Type the character `s` in the Serial monitor field and hit Send
-
+//
 // First Master (Arduino) has to get the length of the data from the Slave (STM32) to read
 //   subsequent data from the Slave
 // Master (Arduino), should read and display data from (STM32) Slave (Slave transmission / Request for Data)
@@ -15,13 +15,17 @@
 // 1. Use I2C SCL = 100KHz (SM)
 // 2. Use external pull up resistors (3.3kOhm) for SDA and SCL line
 // Note: if you don't have external pull up, you can try STM32 I2C pin's internal pull up resistors
-
+//
 // Arduino sketch (i2x_master_rx_string.ino)
 
 #define GPIOBEN               (0x1UL << (1U))
 
-uint8_t tx_buffer[32] = "STM32 Slave mode testing";
 i2c_handle_t i2c1_handle;
+
+
+uint8_t tx_buffer[] = "Before a computer program can be executed, it must be created and compiled. Any text editor or IDE is used to edit the Java source code. The extension of the file should be.java, while the file name should reflect the term used in the public class line. The next step when creating a program is to compile the code: the JDK package must be installed on the machine. The compiler conve*** glitch...123";
+uint32_t data_length = 0;
+uint8_t command_code;
 
 // APB1
 // PB8       I2C1_SCL
@@ -35,6 +39,8 @@ void delay(void);
 
 int main(void)
 {
+  data_length = strlen((char*)tx_buffer);
+
   i2c1_handle.i2cx = I2C1;
 
   I2C1_GPIOInits();
@@ -75,40 +81,48 @@ void I2C1_ER_IRQHandler (void)
 
 void I2C_ApplicationEventCallback(i2c_handle_t *i2c_handle, uint8_t APPLICATION_EVENT)
 {
-  static uint8_t command_code = 0;
   static uint8_t count = 0;
+  static uint32_t w_ptr = 0;
 
-  if (APPLICATION_EVENT == I2C_EV_DATA_REQUEST)
+  if (APPLICATION_EVENT == I2C_ERROR_AF)
   {
-	// 0x51 Master request for data `length information`
-	if (command_code == 0x51)
+	// Runs only in Slave Tx (end of Slave transmission),
+	// Slave should understand Master needs no more data
+	// If the current code is 0x52 then don't invalidate
+	if (! (command_code == 0x52))
 	{
-	  I2C_SlaveSendData(i2c_handle->i2cx, strlen((char*)tx_buffer));
+	  command_code = 0xff;
+	  count = 0;
 	}
-	// 0x52 Master request for data `actual data`
-	else if (command_code == 0x52)
+
+	if (w_ptr >= (data_length))
 	{
-	  I2C_SlaveSendData(i2c_handle->i2cx, tx_buffer[count++]);
+	  w_ptr = 0;
+	  command_code = 0xff;
 	}
-  }
-  else if (APPLICATION_EVENT == I2C_EV_DATA_RECEIVE)
-  {
-	// Master send data (i.e. command code) 0x51 or 0x52
-	command_code = I2C_SlaveReceiveData(i2c_handle->i2cx);
-  }
-  else if (APPLICATION_EVENT == I2C_ERROR_AF)
-  {
-	// Only occurs in Slave Tx, Master has sent NACK hence Slave avoid sending more data
-	command_code=0xFF;
-	count=0;
-//	I2C_CloseSendData(&i2c1_handle);
-//	i2c1_handle.i2cx->CR1 |= I2C_CR1_STOP;
-//	while(1);
   }
   else if (APPLICATION_EVENT == I2C_EV_STOP)
   {
-	// Only occurs in Slave Rx, Master ended the I2C communication with the Slave
+	// Runs only in Slave Rx (end of Slave reception)
+	count = 0;
   }
+  else if (APPLICATION_EVENT == I2C_EV_DATA_REQUEST)
+  {
+	// Master is requesting data, send data
+	if (command_code == 0x51)
+	{
+	  // here sending 4 bytes of length information
+	  I2C_SlaveSendData(i2c1_handle.i2cx, ((data_length >> (count % 4) * 8)) & 0xff);
+	  count++;
+	}
+	else if (command_code == 0x52)
+	{
+	  // Sending `tx_buffer`'s contents indexed by w_ptr variable
+	  I2C_SlaveSendData(i2c1_handle.i2cx, tx_buffer[w_ptr++]);
+	}
+
+  }
+
 }
 
 void I2C1_GPIOInits()
