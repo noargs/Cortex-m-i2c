@@ -65,7 +65,7 @@ void I2C_Inits(I2C_TypeDef *i2cx)
   i2cx->CR2 |= ((RCC_GetPCLK1Value()/1000000U) & 0x3F);
 
   // device own address (slave address) OAR1 RM page:784
-  i2cx->OAR1 |= (SLAVE_ADDRESS & I2C_OAR1_ADD1_7);
+  i2cx->OAR1 |= (SLAVE_ADDRESS << 1);
 
   // Reserved bit but always be kept at 1 by software RM page:784
   i2cx->OAR1 |= (0x1UL << (14U));
@@ -380,7 +380,7 @@ void I2C_EV_IRQHandling (i2c_handle_t *i2c_handle)
 	  // The device is Slave (and also Slave transmitter as checking TXE)
 	  // Transmission bit TRA=1 means Slave in Transmitter mode [Reference Manual page:869]
 	  if (i2c_handle->i2cx->SR2 & I2C_SR2_TRA)
-		I2C_ApplicationEventCallback(i2c_handle, I2C_EV_DATA_RECEIVE);
+		I2C_ApplicationEventCallback(i2c_handle, I2C_EV_DATA_REQUEST);
 	}
   }
 

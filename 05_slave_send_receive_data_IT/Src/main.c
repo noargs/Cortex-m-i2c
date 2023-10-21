@@ -7,6 +7,7 @@
 //
 // Run the STM32 code in the Discovery board, open Arduino serial monitor Tools > Serial Monitor
 // Type the character `s` in the Serial monitor field and hit Send
+// **** Keep the Serial Monitor Baudrate to 9600 ****
 
 // First Master (Arduino) has to get the length of the data from the Slave (STM32) to read
 //   subsequent data from the Slave
@@ -20,7 +21,7 @@
 
 #define GPIOBEN               (0x1UL << (1U))
 
-uint8_t tx_buffer[32] = "STM32 Slave mode testing";
+uint8_t tx_buffer[32] = "STM32 Slave mode testing..";
 i2c_handle_t i2c1_handle;
 
 // APB1
@@ -30,7 +31,6 @@ i2c_handle_t i2c1_handle;
 // PC2       External button (pull-down activated), other side of the button to Vdd
 
 void I2C1_GPIOInits();
-void GPIO_ButtonInit(void);
 void delay(void);
 
 int main(void)
@@ -99,8 +99,8 @@ void I2C_ApplicationEventCallback(i2c_handle_t *i2c_handle, uint8_t APPLICATION_
   else if (APPLICATION_EVENT == I2C_ERROR_AF)
   {
 	// Only occurs in Slave Tx, Master has sent NACK hence Slave avoid sending more data
-	command_code=0xFF;
-	count=0;
+	command_code = 0xFF;
+	count = 0;
 //	I2C_CloseSendData(&i2c1_handle);
 //	i2c1_handle.i2cx->CR1 |= I2C_CR1_STOP;
 //	while(1);
@@ -145,6 +145,7 @@ void I2C1_GPIOInits()
   GPIOB->OSPEEDR &= ~(0x3UL << (18U));
   GPIOB->OSPEEDR |= (0x2UL << (18U));
 }
+
 
 void delay(void)
 {

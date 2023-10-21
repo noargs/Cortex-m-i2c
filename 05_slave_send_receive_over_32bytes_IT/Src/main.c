@@ -23,7 +23,7 @@
 i2c_handle_t i2c1_handle;
 
 
-uint8_t tx_buffer[] = "Before a computer program can be executed, it must be created and compiled. Any text editor or IDE is used to edit the Java source code. The extension of the file should be.java, while the file name should reflect the term used in the public class line. The next step when creating a program is to compile the code: the JDK package must be installed on the machine. The compiler conve*** glitch...123";
+uint8_t tx_buffer[] = "Before a computer program can be executed, it must be created and compiled. Any text editor or IDE is used to edit the Java source code. The extension of the file should be java, while the file name should reflect the term used in the public class line. The next step when creating a program is to compile the code: the JDK package must be installed on the machine. The compiler conve*** glitch...123";
 uint32_t data_length = 0;
 uint8_t command_code;
 
@@ -34,7 +34,6 @@ uint8_t command_code;
 // PC2       External button (pull-down activated), other side of the button to Vdd
 
 void I2C1_GPIOInits();
-void GPIO_ButtonInit(void);
 void delay(void);
 
 int main(void)
@@ -81,7 +80,7 @@ void I2C1_ER_IRQHandler (void)
 
 void I2C_ApplicationEventCallback(i2c_handle_t *i2c_handle, uint8_t APPLICATION_EVENT)
 {
-  static uint8_t count = 0;
+  static uint32_t count = 0;
   static uint32_t w_ptr = 0;
 
   if (APPLICATION_EVENT == I2C_ERROR_AF)
@@ -112,15 +111,18 @@ void I2C_ApplicationEventCallback(i2c_handle_t *i2c_handle, uint8_t APPLICATION_
 	if (command_code == 0x51)
 	{
 	  // here sending 4 bytes of length information
-	  I2C_SlaveSendData(i2c1_handle.i2cx, ((data_length >> (count % 4) * 8)) & 0xff);
+	  I2C_SlaveSendData(i2c_handle->i2cx, ((data_length >> ((count % 4) * 8)) & 0xff));
 	  count++;
 	}
 	else if (command_code == 0x52)
 	{
 	  // Sending `tx_buffer`'s contents indexed by w_ptr variable
-	  I2C_SlaveSendData(i2c1_handle.i2cx, tx_buffer[w_ptr++]);
+	  I2C_SlaveSendData(i2c_handle->i2cx, tx_buffer[w_ptr++]);
 	}
-
+  }
+  else if (APPLICATION_EVENT == I2C_EV_DATA_RECEIVE)
+  {
+	command_code = I2C_SlaveReceiveData(i2c_handle->i2cx);
   }
 
 }
