@@ -39,7 +39,7 @@ uint32_t RCC_GetPCLK1Value(void)
   }
 
   // find APB1 Prescaler RM page: 229
-  temp = ((RCC->CFGR >> 10) & 0xF);
+  temp = ((RCC->CFGR >> 10) & 0x7);
   if (temp < 4)
   {
 	apb1_prescaler = 1;
