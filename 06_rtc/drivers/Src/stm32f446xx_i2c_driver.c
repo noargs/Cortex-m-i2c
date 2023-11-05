@@ -66,6 +66,132 @@ void I2C_Init (i2c_handle_t *i2c_handle)
 
 }
 
+
+void I2C_MasterSendData(i2c_handle_t *i2c_handle, uint8_t *tx_buffer, uint32_t length, uint8_t slave_address, uint8_t sr_repeated_start )
+{
+  //1. Generate the START condition
+  i2c_handle->i2cx->CR1 |= I2C_CR1_START;
+
+  //2. Confirm start generation (i.e. check SB flag in SR1, SB
+  //   stretches the SCL low until cleared)
+  while ((i2c_handle->i2cx->SR1 & I2C_SR1_SB) == RESET);
+
+  //3. Send slave address with r/w bit as 0 i.e. write (slave addr 7bits + r/w 1bit)
+  slave_address = slave_address < 1;
+  slave_address &= ~(1);
+  i2c_handle->i2cx->DR = slave_address;
+
+  //4. Confirm address phase completed (i.e. check ADDR flag in SR1)
+  while ((i2c_handle->i2cx->SR1 & I2C_SR1_ADDR) == RESET);
+
+  //5. Clear the ADDR with software sequence (read SR1 and then SR2, ADDR
+  //   stretches the SCL low until cleared)
+  uint32_t dummy_read = i2c_handle->i2cx->SR1;
+  dummy_read = i2c_handle->i2cx->SR2;
+  (void)dummy_read;
+
+  while (len > 0)
+  {
+	while ((i2c_handle->i2cx->SR1 & I2C_SR1_TXE) == RESET);
+	i2c_handle->i2cx->DR = *tx_buffer;
+	tx_buffer++;
+	len--;
+  }
+
+  //7. When `len=0` wait for TxE=1, BTF=1 before generating STOP condition
+  //   TxE=1, BTF=1 means both SR and DR are empty and next transmission should begin
+  //   BTF=1 also stretches the SCL to low
+  while ((i2c_handle->i2cx->SR1 & I2C_SR1_TXE) == RESET);
+  while ((i2c_handle->i2cx->SR1 & I2C_SR1_BTF) == RESET);
+
+  //8. Generate STOP condition and Master should wait for the completion of STOP condition
+  //   Generating STOP, auto clears the BTF
+  if (sr_repeated_start == I2C_SR_DISABLE)
+  {
+	i2c_handle->i2cx->CR1 |= I2C_CR1_STOP;
+  }
+
+}
+
+
+void I2C_MasterReceiveData(i2c_handle_t *i2c_handle, uint8_t *rx_buffer, uint32_t length, uint8_t slave_address, uint8_t sr_repeated_start)
+{
+  //1. Generate the START condition
+  i2c_handle->i2cx->CR1 |= I2C_CR1_START;
+
+  //2. Confirm that Start generation is completed by checking the SB flag in the SR
+  // Note: Until SB is cleared SCL will be stretched (pulled to LOW)
+  while ((i2c_handle->i2cx->SR1 & I2C_SR1_SB) == RESET);
+
+  //3. Send the address of the slave with R/W bit set to 1 (i.e. R) (total 8 bits)
+  slave_address = slave_address < 1;
+  slave_address |= 1;
+  i2c_handle->i2cx->DR = slave_address;
+
+  //4. Wait until Address phase is completed by checking the ADDR flag in the SR1
+  while ((i2c_handle->i2cx->SR1 & I2C_SR1_ADDR) == RESET);
+
+
+  // ...... Procedure to read only [1 byte] from the Slave ........
+  if (len == 1)
+  {
+	// Disable Ack
+	i2c_handle->i2cx->CR1 &= ~I2C_CR1_ACK;
+
+	// Clear the ADDR flag
+	uint32_t dummy_read = i2c_handle->i2cx->SR1;
+	dummy_read = i2c_handle->i2cx->SR2;
+	(void)dummy_read;
+
+	// Wait untill RxNE becomes 1
+	while ((i2c_handle->i2cx->SR1 & I2C_SR1_RXNE) == RESET);
+
+	// Generate STOP condition
+	if (sr_repeated_start == I2C_SR_DISABLE)
+	{
+	  i2c_handle->i2cx->CR1 |= I2C_CR1_STOP;
+	}
+
+	// Read data into the buffer
+	*rx_buffer = i2c_handle->i2cx->DR;
+  }
+
+  // ...... Procedure to read more than 1 byte [len > 1] from the Slave ........
+  if (len > 1)
+  {
+	// Clear the ADDR flag
+	uint32_t dummy_read = i2c_handle->i2cx->SR1;
+	dummy_read = i2c_handle->i2cx->SR2;
+	(void)dummy_read;
+
+	for (uint32_t i=len; i>0; i--)
+	{
+	  // Wait until RxNE becomes 1
+	  while ((i2c_handle->i2cx->SR1 & I2C_SR1_RXNE) == RESET);
+
+	  if (i==2)
+	  {
+		// Clear the ACK bit
+		i2c_handle->i2cx->CR1 &= ~I2C_CR1_ACK;
+
+		// Generate STOP condition
+		if (sr_repeated_start == I2C_SR_DISABLE)
+		{
+		  i2c_handle->i2cx->CR1 |= I2C_CR1_STOP;
+		}
+	  }
+
+
+	  // Read the data from DR in to buffer AND increment the buffer address
+	  *rx_buffer = i2c_handle->i2cx->DR;
+	  rx_buffer++;
+	}
+  }
+  // Re-enable ACK
+  i2c_handle->i2cx->CR1 |= I2C_CR1_ACK;
+}
+
+
 static uint32_t RCC_GetPCLK1Value(void)
 {
   uint32_t system_clock;

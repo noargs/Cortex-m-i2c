@@ -2,12 +2,16 @@
 #include "stm32f446xx_i2c_driver.h"
 
 
-#define GPIOBEN                    (0x1UL << (1U))
-
 int main(void)
 {
 
-  I2C1_PCLK_EN();
+  RTC_time_t current_time;
+  RTC_date_t current_data;
+
+  if (ds1307_init())
+  {
+	while(1);
+  }
 
   return 0;
 
