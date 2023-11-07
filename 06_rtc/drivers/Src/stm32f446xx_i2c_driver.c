@@ -9,50 +9,51 @@ void I2C_Init (i2c_handle_t *i2c_handle)
 {
 
   // Enable clock access to I2C1
-  I2C1_PCLK_EN();
+  I2C_PCLK_EN(i2c_handle->i2cx);
 
   // ACK only take into effect after PE=1
+  i2c_handle->i2cx->CR1 |= I2C_CR1_ACK;
 
   uint32_t temp_reg = 0;
 
-  // Configure the FREQ field CR2
+  // [ Configure the FREQ field CR2 ]
   temp_reg |= (RCC_GetPCLK1Value() / 1000000U);
   i2c_handle->i2cx->CR2 = (temp_reg & 0x3F);
 
   // Program the device own address
   temp_reg = 0;
-  temp_reg |= i2c_handle->i2c_config->i2c_device_address << 1U;
+  temp_reg |= i2c_handle->i2c_config.i2c_device_address << 1U;
   temp_reg |= (0x1UL << (14U)); // always kept at 1 RM page: 784
   i2c_handle->i2cx->OAR1 = temp_reg;
 
-  // CCR calculation
+  // [ CCR calculation ]
  uint16_t ccr = 0;
  temp_reg = 0;
 
- if (i2c_handle->i2c_config->i2c_scl_speed <= I2C_SCL_SPEED_SM)
+ if (i2c_handle->i2c_config.i2c_scl_speed <= I2C_SCL_SPEED_SM)
  { // Standard Mode
-   ccr = (RCC_GetPCLK1Value() / 2 * i2c_handle->i2c_config->i2c_scl_speed);
+   ccr = (RCC_GetPCLK1Value() / 2 * i2c_handle->i2c_config.i2c_scl_speed);
    temp_reg |= (ccr & 0xFFF);
  }
  else
  { // Fast mode
    temp_reg |= I2C_CCR_FS;
-   temp_reg |= i2c_handle->i2c_config->i2c_fm_duty_cycle << I2C_CCR_DUTY_Pos;
-   if (i2c_handle->i2c_config->i2c_fm_duty_cycle == I2C_FM_DUTY_2)
+   temp_reg |= i2c_handle->i2c_config.i2c_fm_duty_cycle << I2C_CCR_DUTY_Pos;
+   if (i2c_handle->i2c_config.i2c_fm_duty_cycle == I2C_FM_DUTY_2)
    {
-	 ccr = (RCC_GetPCLK1Value() / 3 * i2c_handle->i2c_config->i2c_scl_speed);
+	 ccr = (RCC_GetPCLK1Value() / 3 * i2c_handle->i2c_config.i2c_scl_speed);
    }
    else
    {
-	 ccr = (RCC_GetPCLK1Value() / 25 * i2c_handle->i2c_config->i2c_scl_speed);
+	 ccr = (RCC_GetPCLK1Value() / 25 * i2c_handle->i2c_config.i2c_scl_speed);
    }
 
    temp_reg |= (ccr & 0xFFF);
  }
  i2c_handle->i2cx->CCR = temp_reg;
 
- // Trise configuration
- if (i2c_handle->i2c_config->i2c_scl_speed <= I2C_SCL_SPEED_SM)
+ // [ Trise configuration ]
+ if (i2c_handle->i2c_config.i2c_scl_speed <= I2C_SCL_SPEED_SM)
  {
    // Standard mode
    temp_reg = (RCC_GetPCLK1Value()/1000000U) + 1;
@@ -90,12 +91,12 @@ void I2C_MasterSendData(i2c_handle_t *i2c_handle, uint8_t *tx_buffer, uint32_t l
   dummy_read = i2c_handle->i2cx->SR2;
   (void)dummy_read;
 
-  while (len > 0)
+  while (length > 0)
   {
 	while ((i2c_handle->i2cx->SR1 & I2C_SR1_TXE) == RESET);
 	i2c_handle->i2cx->DR = *tx_buffer;
 	tx_buffer++;
-	len--;
+	length--;
   }
 
   //7. When `len=0` wait for TxE=1, BTF=1 before generating STOP condition
@@ -133,7 +134,7 @@ void I2C_MasterReceiveData(i2c_handle_t *i2c_handle, uint8_t *rx_buffer, uint32_
 
 
   // ...... Procedure to read only [1 byte] from the Slave ........
-  if (len == 1)
+  if (length == 1)
   {
 	// Disable Ack
 	i2c_handle->i2cx->CR1 &= ~I2C_CR1_ACK;
@@ -157,14 +158,14 @@ void I2C_MasterReceiveData(i2c_handle_t *i2c_handle, uint8_t *rx_buffer, uint32_
   }
 
   // ...... Procedure to read more than 1 byte [len > 1] from the Slave ........
-  if (len > 1)
+  if (length > 1)
   {
 	// Clear the ADDR flag
 	uint32_t dummy_read = i2c_handle->i2cx->SR1;
 	dummy_read = i2c_handle->i2cx->SR2;
 	(void)dummy_read;
 
-	for (uint32_t i=len; i>0; i--)
+	for (uint32_t i=length; i>0; i--)
 	{
 	  // Wait until RxNE becomes 1
 	  while ((i2c_handle->i2cx->SR1 & I2C_SR1_RXNE) == RESET);

@@ -31,7 +31,11 @@ typedef struct
 #define I2C_FM_DUTY_16_9                  1
 
 #define I2C_SR_ENABLE                     ENABLE
-#define I2C_SR_DISABLE                    RESET
+#define I2C_SR_DISABLE                    DISABLE
+
+#define I2C_PCLK_EN(x)                    ((x == I2C1) ? (RCC->APB1ENR |= RCC_APB1ENR_I2C1EN) :\
+                                           (x == I2C2) ? (RCC->APB1ENR |= RCC_APB1ENR_I2C2EN) :\
+                                           (x == I2C3) ? (RCC->APB1ENR |= RCC_APB1ENR_I2C3EN) : 0)
 
 #define I2C1_PCLK_EN()                    (RCC->APB1ENR |= RCC_APB1ENR_I2C1EN)
 #define I2C2_PCLK_EN()                    (RCC->APB1ENR |= RCC_APB1ENR_I2C2EN)
