@@ -8,7 +8,7 @@ uint8_t  ppre1[4] = {2, 4, 8, 16};
 void I2C_Init (i2c_handle_t *i2c_handle)
 {
 
-  // Enable clock access to I2C1
+  // Enable clock access to I2Cx
   I2C_PCLK_EN(i2c_handle->i2cx);
 
   // ACK only take into effect after PE=1

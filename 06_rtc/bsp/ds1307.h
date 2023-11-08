@@ -20,7 +20,11 @@
 #define DS1307_I2C_SPEED              I2C_SCL_SPEED_SM
 #define DS1307_I2C_DEVICE_ADDR        0x68
 
-uint8_t ds1307_init(void);
+#define DS1307_ADDR_SEC               0x00
+#define DS1307_ADDR_MIN               0x01
+#define DS1307_ADDR_HRS               0x02
+
+ErrorStatus ds1307_init(void);
 
 
 
