@@ -1,2 +1,2 @@
-## Cortex-m-i2c
-Practise API to send/receive as Master/Slave
+## ARM Cortex M3/M4 - I2C
+Practise API to send/receive data as Master/Slave
