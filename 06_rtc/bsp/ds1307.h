@@ -24,7 +24,7 @@
 #define DS1307_ADDR_MIN               0x01
 #define DS1307_ADDR_HRS               0x02
 
-ErrorStatus ds1307_init(void);
+uint8_t ds1307_init(void);
 
 
 

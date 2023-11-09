@@ -6,15 +6,17 @@
 
 int main(void)
 {
-  DebugUART_Init();
+//  DebugUART_Init();
 
 
-  if (ds1307_init() == ERROR)
+  if (ds1307_init())
   {
-	printf("Failed to initialise the DS1307 chip, CH=1\n\r");
-	while(1);
+//	printf("Failed to initialise the DS1307 chip, CH=1 \n\r");
+	while (1);
   }
 
-  return 0;
+//  printf("DS1307 chip intialised successfully. \n\r");
+
+  while (1);
 
 }

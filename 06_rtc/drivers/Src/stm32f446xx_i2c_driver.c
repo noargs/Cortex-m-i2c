@@ -11,11 +11,15 @@ void I2C_Init (i2c_handle_t *i2c_handle)
   // Enable clock access to I2Cx
   I2C_PCLK_EN(i2c_handle->i2cx);
 
-  // ACK only take into effect after PE=1
-  i2c_handle->i2cx->CR1 |= I2C_CR1_ACK;
-
   uint32_t temp_reg = 0;
 
+  // ACK only take into effect after PE=1
+//  i2c_handle->i2cx->CR1 |= I2C_CR1_ACK;
+  temp_reg |= i2c_handle->i2c_config.i2c_ack_control << I2C_CR1_ACK_Pos;
+  i2c_handle->i2cx->CR1 = temp_reg;
+
+
+  temp_reg = 0;
   // [ Configure the FREQ field CR2 ]
   temp_reg |= (RCC_GetPCLK1Value() / 1000000U);
   i2c_handle->i2cx->CR2 = (temp_reg & 0x3F);
@@ -41,11 +45,11 @@ void I2C_Init (i2c_handle_t *i2c_handle)
    temp_reg |= i2c_handle->i2c_config.i2c_fm_duty_cycle << I2C_CCR_DUTY_Pos;
    if (i2c_handle->i2c_config.i2c_fm_duty_cycle == I2C_FM_DUTY_2)
    {
-	 ccr = (RCC_GetPCLK1Value() / 3 * i2c_handle->i2c_config.i2c_scl_speed);
+	 ccr = (RCC_GetPCLK1Value() / (3 * i2c_handle->i2c_config.i2c_scl_speed));
    }
    else
    {
-	 ccr = (RCC_GetPCLK1Value() / 25 * i2c_handle->i2c_config.i2c_scl_speed);
+	 ccr = (RCC_GetPCLK1Value() / (25 * i2c_handle->i2c_config.i2c_scl_speed));
    }
 
    temp_reg |= (ccr & 0xFFF);
@@ -78,7 +82,7 @@ void I2C_MasterSendData(i2c_handle_t *i2c_handle, uint8_t *tx_buffer, uint32_t l
   while ((i2c_handle->i2cx->SR1 & I2C_SR1_SB) == RESET);
 
   //3. Send slave address with r/w bit as 0 i.e. write (slave addr 7bits + r/w 1bit)
-  slave_address = slave_address < 1;
+  slave_address = slave_address << 1;
   slave_address &= ~(1);
   i2c_handle->i2cx->DR = slave_address;
 
@@ -125,7 +129,7 @@ void I2C_MasterReceiveData(i2c_handle_t *i2c_handle, uint8_t *rx_buffer, uint32_
   while ((i2c_handle->i2cx->SR1 & I2C_SR1_SB) == RESET);
 
   //3. Send the address of the slave with R/W bit set to 1 (i.e. R) (total 8 bits)
-  slave_address = slave_address < 1;
+  slave_address = slave_address << 1;
   slave_address |= 1;
   i2c_handle->i2cx->DR = slave_address;
 

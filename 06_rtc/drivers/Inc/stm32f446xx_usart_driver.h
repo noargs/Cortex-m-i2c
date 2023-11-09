@@ -14,8 +14,8 @@ typedef struct
   usart_config_t usart_config;
 }usart_handle_t;
 
-#define USART_DESIRED_BAUD_RATE           115200
-#define USART_SYSTEM_CLOCK_FREQ           16000000
+#define USART_DESIRED_BAUD_RATE           115200U
+#define USART_SYSTEM_CLOCK_FREQ           16000000U
 
 
 #define USART_PCLK_EN(x)                  ((x == USART1) ? (RCC->APB2ENR |= RCC_APB2ENR_USART1EN) :\
