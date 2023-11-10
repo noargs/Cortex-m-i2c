@@ -44,11 +44,21 @@ void GPIO_Init(gpio_handle_t *gpio_h)
   // AFRL, AFRH
   if (gpio_h->gpio_config.pin_mode == GPIO_MODE_ALTFN)
   {
-	uint8_t temp1, temp2;
-	temp1 = gpio_h->gpio_config.pin_number / 8;
-	temp2 = gpio_h->gpio_config.pin_number % 8;
-	gpio_h->gpiox->AFR[temp1] &= ~(0xF << (4 * temp2));
-	gpio_h->gpiox->AFR[temp1] |= (gpio_h->gpio_config.pin_alt_fun << (4 * temp2));
+	GPIO_ConfigureAlternateFunction(gpio_h);
   }
 
+}
+
+uint8_t GPIO_ReadFromInputPin(GPIO_TypeDef *gpiox, uint8_t pin_number)
+{
+  return ((gpiox->IDR >> pin_number) & 0x00000001);
+}
+
+void GPIO_ConfigureAlternateFunction(gpio_handle_t *gpio_handle)
+{
+  uint8_t temp1, temp2;
+  temp1 = gpio_handle->gpio_config.pin_number / 8;
+  temp2 = gpio_handle->gpio_config.pin_number % 8;
+  gpio_handle->gpiox->AFR[temp1] &= ~(0xF << (4 * temp2));
+  gpio_handle->gpiox->AFR[temp1] |= (gpio_handle->gpio_config.pin_alt_fun << (4 * temp2));
 }

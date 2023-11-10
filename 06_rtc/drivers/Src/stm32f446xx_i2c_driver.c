@@ -1,4 +1,5 @@
 #include "stm32f446xx_i2c_driver.h"
+#include "stm32f446xx_gpio_driver.h"
 
 static uint32_t RCC_GetPCLK1Value(void);
 
@@ -11,15 +12,15 @@ void I2C_Init (i2c_handle_t *i2c_handle)
   // Enable clock access to I2Cx
   I2C_PCLK_EN(i2c_handle->i2cx);
 
+  i2c_handle->i2cx->CR1 &= ~I2C_CR1_PE;
+
   uint32_t temp_reg = 0;
 
   // ACK only take into effect after PE=1
 //  i2c_handle->i2cx->CR1 |= I2C_CR1_ACK;
-  temp_reg |= i2c_handle->i2c_config.i2c_ack_control << I2C_CR1_ACK_Pos;
-  i2c_handle->i2cx->CR1 = temp_reg;
+//  temp_reg |= i2c_handle->i2c_config.i2c_ack_control << I2C_CR1_ACK_Pos;
+//  i2c_handle->i2cx->CR1 = temp_reg;
 
-
-  temp_reg = 0;
   // [ Configure the FREQ field CR2 ]
   temp_reg |= (RCC_GetPCLK1Value() / 1000000U);
   i2c_handle->i2cx->CR2 = (temp_reg & 0x3F);
@@ -36,7 +37,7 @@ void I2C_Init (i2c_handle_t *i2c_handle)
 
  if (i2c_handle->i2c_config.i2c_scl_speed <= I2C_SCL_SPEED_SM)
  { // Standard Mode
-   ccr = (RCC_GetPCLK1Value() / 2 * i2c_handle->i2c_config.i2c_scl_speed);
+   ccr = (RCC_GetPCLK1Value() / (2 * i2c_handle->i2c_config.i2c_scl_speed));
    temp_reg |= (ccr & 0xFFF);
  }
  else

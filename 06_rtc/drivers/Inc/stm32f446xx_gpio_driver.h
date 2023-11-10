@@ -91,7 +91,9 @@ typedef struct
                                        (x == GPIOH) ? (RCC->AHB1ENR |= RCC_AHB1ENR_GPIOHEN) : 0)
 
 
-void GPIO_Init(gpio_handle_t *gpio_h);
+void GPIO_Init(gpio_handle_t *gpio_handle);
+uint8_t GPIO_ReadFromInputPin(GPIO_TypeDef *gpiox, uint8_t pin_number);
+void GPIO_ConfigureAlternateFunction(gpio_handle_t *gpio_handle);
 
 
 
