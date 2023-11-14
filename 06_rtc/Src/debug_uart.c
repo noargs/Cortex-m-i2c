@@ -1,7 +1,6 @@
 #include "debug_uart.h"
 #include <string.h>
 
-static uint16_t DebugUART_compute_baudrate(uint32_t pclk, uint32_t desired_baud);
 static void DebugUART_gpio_config(void);
 static void DebugUART_uart_config(void);
 static void DebugUART_write(int ch);
@@ -29,8 +28,8 @@ static void DebugUART_gpio_config(void)
 
   gpio_handle_t usart2_tx, usart2_rx;
 
-  memset(&usart2_tx, 0, sizeof(usart2_tx));
-  memset(&usart2_rx, 0, sizeof(usart2_rx));
+//  memset(&usart2_tx, 0, sizeof(usart2_tx));
+//  memset(&usart2_rx, 0, sizeof(usart2_rx));
 
   usart2_tx.gpiox                   = DEBUG_UART_GPIO_PORT;
   usart2_tx.gpio_config.pin_alt_fun = AF7;
@@ -50,16 +49,10 @@ static void DebugUART_gpio_config(void)
 static void DebugUART_uart_config(void)
 {
   usart2_handle.usartx = USART2;
-  usart2_handle.usart_config.usart_baud_rate = DebugUART_compute_baudrate(DEBUG_UART_APB1_FREQ, DEBUG_UART_DESIRED_BAUD);
   USART_Init(&usart2_handle);
 }
 
 static void DebugUART_write(int ch)
 {
   USART_SendData(usart2_handle.usartx, ch);
-}
-
-static uint16_t DebugUART_compute_baudrate(uint32_t pclk, uint32_t desired_baud)
-{
-  return ((pclk + (desired_baud/2U))/desired_baud);
 }

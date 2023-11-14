@@ -11,10 +11,6 @@
 #define DEBUG_UART_GPIO_PIN_SPEED     GPIO_SPEED_FAST
 #define AF7                           7U
 
-#define DEBUG_UART_APB1_FREQ          USART_SYSTEM_CLOCK_FREQ
-#define DEBUG_UART_DESIRED_BAUD       USART_DESIRED_BAUD_RATE
-
-
 void DebugUART_Init(void);
 
 

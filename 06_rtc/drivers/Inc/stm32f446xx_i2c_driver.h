@@ -19,7 +19,7 @@ typedef struct
 
 
 // @i2c_scl_speed
-#define I2C_SCL_SPEED_SM                  100000 // Hz
+#define I2C_SCL_SPEED_SM                  25000 // Hz
 #define I2C_SCL_SPEED_FM2K                200000
 #define I2C_SCL_SPEED_FM4K                400000
 

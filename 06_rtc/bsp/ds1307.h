@@ -24,7 +24,39 @@
 #define DS1307_ADDR_MIN               0x01
 #define DS1307_ADDR_HRS               0x02
 
+#define SUNDAY                        1U;
+#define MONDAY                        2U;
+#define TUESDAY                       3U;
+#define WEDNESDAY                     4U;
+#define THURSDAY                      5U;
+#define FRIDAY                        6U;
+#define SATURDAY                      7U;
+
+#define TIME_FORMAT_12HRS_AM          0U
+#define TIME_FORMAT_12HRS_PM          1U
+#define TIME_FORMAT_24HRS             2U
+
+
+typedef struct
+{
+  uint8_t day;
+  uint8_t date;
+  uint8_t month;
+  uint8_t year;
+}rtc_date_t;
+
+typedef struct
+{
+  uint8_t seconds;
+  uint8_t minutes;
+  uint8_t hours;
+  uint8_t time_fmt;
+}rtc_time_t;
+
 uint8_t ds1307_init(void);
+
+void ds1307_set_current_time(rtc_time_t *current_time);
+void ds1307_get_current_time(rtc_time_t *current_time);
 
 
 
