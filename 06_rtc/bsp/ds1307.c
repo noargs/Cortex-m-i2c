@@ -100,6 +100,22 @@ void ds1307_get_current_time(rtc_time_t *current_time)
   current_time->hours = bcd_to_binary(hours);
 }
 
+void ds1307_set_current_date(rtc_date_t *current_date)
+{
+  ds1307_write(DS1307_ADDR_DAY, binary_to_bcd(current_date->day));
+  ds1307_write(DS1307_ADDR_DATE, binary_to_bcd(current_date->date));
+  ds1307_write(DS1307_ADDR_MONTH, binary_to_bcd(current_date->month));
+  ds1307_write(DS1307_ADDR_YEAR, binary_to_bcd(current_date->year));
+}
+
+void ds1307_get_current_date(rtc_date_t *current_date)
+{
+  current_date->day = bcd_to_binary(ds1307_read(DS1307_ADDR_DAY));
+  current_date->date = bcd_to_binary(ds1307_read(DS1307_ADDR_DATE));
+  current_date->month = bcd_to_binary(ds1307_read(DS1307_ADDR_MONTH));
+  current_date->year = bcd_to_binary(ds1307_read(DS1307_ADDR_YEAR));
+}
+
 static uint8_t binary_to_bcd(uint8_t bin)
 {
   uint8_t m, n, bcd;

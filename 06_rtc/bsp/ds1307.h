@@ -23,6 +23,10 @@
 #define DS1307_ADDR_SEC               0x00
 #define DS1307_ADDR_MIN               0x01
 #define DS1307_ADDR_HRS               0x02
+#define DS1307_ADDR_DAY               0x03
+#define DS1307_ADDR_DATE              0x04
+#define DS1307_ADDR_MONTH             0x05
+#define DS1307_ADDR_YEAR              0x06
 
 #define SUNDAY                        1U;
 #define MONDAY                        2U;
@@ -57,6 +61,8 @@ uint8_t ds1307_init(void);
 
 void ds1307_set_current_time(rtc_time_t *current_time);
 void ds1307_get_current_time(rtc_time_t *current_time);
+void ds1307_set_current_date(rtc_date_t *current_date);
+void ds1307_get_current_date(rtc_date_t *current_date);
 
 
 
