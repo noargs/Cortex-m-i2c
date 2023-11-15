@@ -13,6 +13,7 @@ char* time_to_string(rtc_time_t *rtc_time);
 void number_to_string(uint8_t number, char* buf);
 char* date_to_string(rtc_date_t *current_date);
 char* get_day_of_week(uint8_t day);
+void init_date_time(void);
 void output_date_time(void);
 void systick_init(uint32_t tick_hz);
 
@@ -34,6 +35,21 @@ int main(void)
 
   printf("\rDS1307 intialised successfully\n");
 
+  init_date_time();
+
+  output_date_time();
+
+  while (1);
+
+}
+
+void SysTick_Handler (void)
+{
+  output_date_time();
+}
+
+void init_date_time(void)
+{
   current_date.day       = TUESDAY;
   current_date.date      = 14;
   current_date.month     = 11;
@@ -46,16 +62,6 @@ int main(void)
 
   ds1307_set_current_date(&current_date);
   ds1307_set_current_time(&current_time);
-
-  output_date_time();
-
-  while (1);
-
-}
-
-void SysTick_Handler (void)
-{
-  output_date_time();
 }
 
 void output_date_time(void)
@@ -123,7 +129,7 @@ void number_to_string(uint8_t number, char* buf)
   }
 }
 
-// dd/mm/yy
+// dd-mm-yy
 char* date_to_string(rtc_date_t *current_date)
 {
   static char buf[9];
