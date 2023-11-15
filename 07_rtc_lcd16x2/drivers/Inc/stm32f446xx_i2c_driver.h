@@ -38,13 +38,10 @@ typedef struct
                                            (x == I2C2) ? (RCC->APB1ENR |= RCC_APB1ENR_I2C2EN) :\
                                            (x == I2C3) ? (RCC->APB1ENR |= RCC_APB1ENR_I2C3EN) : 0)
 
-#define I2C1_PCLK_EN()                    (RCC->APB1ENR |= RCC_APB1ENR_I2C1EN)
-#define I2C2_PCLK_EN()                    (RCC->APB1ENR |= RCC_APB1ENR_I2C2EN)
-#define I2C3_PCLK_EN()                    (RCC->APB1ENR |= RCC_APB1ENR_I2C3EN)
+#define I2C_PCLK_DIS(x)                   ((x == I2C1) ? (RCC->APB1ENR &= ~RCC_APB1ENR_I2C1EN) :\
+                                           (x == I2C2) ? (RCC->APB1ENR &= ~RCC_APB1ENR_I2C2EN) :\
+                                           (x == I2C3) ? (RCC->APB1ENR &= ~RCC_APB1ENR_I2C3EN) : 0)
 
-#define I2C1_PCLK_DI()                    (RCC->APB1ENR &= ~RCC_APB1ENR_I2C1EN)
-#define I2C2_PCLK_DI()                    (RCC->APB1ENR &= ~RCC_APB1ENR_I2C2EN)
-#define I2C3_PCLK_DI()                    (RCC->APB1ENR &= ~RCC_APB1ENR_I2C3EN)
 
 void I2C_Init(i2c_handle_t *i2c_handle);
 

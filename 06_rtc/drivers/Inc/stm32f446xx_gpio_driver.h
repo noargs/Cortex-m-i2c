@@ -63,24 +63,6 @@ typedef struct
 #define GPIO_PIN_15                   15
 
 
-#define GPIOA_PCLK_EN()               (RCC->AHB1ENR |= RCC_AHB1ENR_GPIOAEN)
-#define GPIOB_PCLK_EN()               (RCC->AHB1ENR |= RCC_AHB1ENR_GPIOBEN)
-#define GPIOC_PCLK_EN()               (RCC->AHB1ENR |= RCC_AHB1ENR_GPIOCEN)
-#define GPIOD_PCLK_EN()               (RCC->AHB1ENR |= RCC_AHB1ENR_GPIODEN)
-#define GPIOE_PCLK_EN()               (RCC->AHB1ENR |= RCC_AHB1ENR_GPIOEEN)
-#define GPIOF_PCLK_EN()               (RCC->AHB1ENR |= RCC_AHB1ENR_GPIOFEN)
-#define GPIOG_PCLK_EN()               (RCC->AHB1ENR |= RCC_AHB1ENR_GPIOGEN)
-#define GPIOH_PCLK_EN()               (RCC->AHB1ENR |= RCC_AHB1ENR_GPIOHEN)
-
-#define GPIOA_PCLK_DIS()              (RCC->AHB1ENR &= ~RCC_AHB1ENR_GPIOAEN)
-#define GPIOB_PCLK_DIS()              (RCC->AHB1ENR &= ~RCC_AHB1ENR_GPIOBEN)
-#define GPIOC_PCLK_DIS()              (RCC->AHB1ENR &= ~RCC_AHB1ENR_GPIOCEN)
-#define GPIOD_PCLK_DIS()              (RCC->AHB1ENR &= ~RCC_AHB1ENR_GPIODEN)
-#define GPIOE_PCLK_DIS()              (RCC->AHB1ENR &= ~RCC_AHB1ENR_GPIOEEN)
-#define GPIOF_PCLK_DIS()              (RCC->AHB1ENR &= ~RCC_AHB1ENR_GPIOFEN)
-#define GPIOG_PCLK_DIS()              (RCC->AHB1ENR &= ~RCC_AHB1ENR_GPIOGEN)
-#define GPIOH_PCLK_DIS()              (RCC->AHB1ENR &= ~RCC_AHB1ENR_GPIOHEN)
-
 #define GPIO_PCLK_EN(x)               ((x == GPIOA) ? (RCC->AHB1ENR |= RCC_AHB1ENR_GPIOAEN) :\
                                        (x == GPIOB) ? (RCC->AHB1ENR |= RCC_AHB1ENR_GPIOBEN) :\
                                        (x == GPIOC) ? (RCC->AHB1ENR |= RCC_AHB1ENR_GPIOCEN) :\
@@ -89,6 +71,15 @@ typedef struct
                                        (x == GPIOF) ? (RCC->AHB1ENR |= RCC_AHB1ENR_GPIOFEN) :\
                                        (x == GPIOG) ? (RCC->AHB1ENR |= RCC_AHB1ENR_GPIOGEN) :\
                                        (x == GPIOH) ? (RCC->AHB1ENR |= RCC_AHB1ENR_GPIOHEN) : 0)
+
+#define GPIO_PCLK_DIS(x)              ((x == GPIOA) ? (RCC->AHB1ENR &= ~RCC_AHB1ENR_GPIOAEN) :\
+                                       (x == GPIOB) ? (RCC->AHB1ENR &= ~RCC_AHB1ENR_GPIOBEN) :\
+                                       (x == GPIOC) ? (RCC->AHB1ENR &= ~RCC_AHB1ENR_GPIOCEN) :\
+                                       (x == GPIOD) ? (RCC->AHB1ENR &= ~RCC_AHB1ENR_GPIODEN) :\
+                                       (x == GPIOE) ? (RCC->AHB1ENR &= ~RCC_AHB1ENR_GPIOEEN) :\
+                                       (x == GPIOF) ? (RCC->AHB1ENR &= ~RCC_AHB1ENR_GPIOFEN) :\
+                                       (x == GPIOG) ? (RCC->AHB1ENR &= ~RCC_AHB1ENR_GPIOGEN) :\
+                                       (x == GPIOH) ? (RCC->AHB1ENR &= ~RCC_AHB1ENR_GPIOHEN) : 0)
 
 
 void GPIO_Init(gpio_handle_t *gpio_handle);
