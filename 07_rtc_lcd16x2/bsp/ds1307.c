@@ -226,11 +226,10 @@ static void ds1307_i2c_clear_busy_flag_erratum()
   while (GPIO_ReadFromInputPin(i2c_sda.gpiox, i2c_sda.gpio_config.pin_number) == RESET);
 
   //12. configure the scl and sda i/o's as Alternate function open-drain
-//  GPIO_ConfigureAlternateFunction(&i2c_scl);
   i2c_scl.gpiox->MODER &= ~(0x3 << (2 * i2c_scl.gpio_config.pin_number));
   i2c_scl.gpiox->MODER |= (GPIO_MODE_ALTFN << (2 * i2c_scl.gpio_config.pin_number));
   i2c_scl.gpiox->OTYPER |= (GPIO_OP_TYPE_OD << i2c_scl.gpio_config.pin_number);
-//  GPIO_ConfigureAlternateFunction(&i2c_sda);
+
   i2c_sda.gpiox->MODER &= ~(0x3 << (2 * i2c_sda.gpio_config.pin_number));
   i2c_sda.gpiox->MODER |= (GPIO_MODE_ALTFN << (2 * i2c_sda.gpio_config.pin_number));
   i2c_sda.gpiox->OTYPER |= (GPIO_OP_TYPE_OD << i2c_sda.gpio_config.pin_number);

@@ -12,8 +12,16 @@
 #define LCD_GPIO_D6                       GPIO_PIN_2
 #define LCD_GPIO_D7                       GPIO_PIN_3
 
-void lcd_init(void);
+// LCD commands
+#define LCD_CMD_DL4BIT_N2LINES_F5X8DOTS   0x28         // DL=1 (i.e. 4bits), N=1 (2-lines), F=0 (5x8 dots)
+#define LCD_CMD_DISPLAYON_CURSORON        0x0E
+#define LCD_CMD_DISPLAY_CLEAR             0x01
+#define LCD_CMD_INC_DDRAM                 0x06
+#define LCD_CMD_DISPLAY_RETURN_HOME       0x02
 
+void lcd_init(void);
+void lcd_display_clear(void);
+void lcd_send_command(uint8_t command);
 
 // Vss     ==>  GND
 // Vdd     ==>  3.3v

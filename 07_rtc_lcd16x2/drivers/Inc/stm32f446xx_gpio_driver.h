@@ -1,7 +1,7 @@
 #ifndef INC_STM32F446XX_GPIO_DRIVER_H_
 #define INC_STM32F446XX_GPIO_DRIVER_H_
 
-#include "stm32f446xx.h"
+#include "stm32f4xx.h"
 
 typedef struct
 {
@@ -18,7 +18,6 @@ typedef struct
   GPIO_TypeDef   *gpiox;
   gpio_config_t  gpio_config;
 }gpio_handle_t;
-
 
 // @pin_op_type
 #define GPIO_OP_TYPE_PP               0       // output type push-pull
@@ -62,6 +61,10 @@ typedef struct
 #define GPIO_PIN_14                   14
 #define GPIO_PIN_15                   15
 
+#define GPIO_PIN_SET                  ENABLE
+#define GPIO_PIN_RESET                DISABLE
+
+
 #define GPIO_PCLK_EN(x)               ((x == GPIOA) ? (RCC->AHB1ENR |= RCC_AHB1ENR_GPIOAEN) :\
                                        (x == GPIOB) ? (RCC->AHB1ENR |= RCC_AHB1ENR_GPIOBEN) :\
                                        (x == GPIOC) ? (RCC->AHB1ENR |= RCC_AHB1ENR_GPIOCEN) :\
@@ -80,10 +83,12 @@ typedef struct
                                        (x == GPIOG) ? (RCC->AHB1ENR &= ~RCC_AHB1ENR_GPIOGEN) :\
                                        (x == GPIOH) ? (RCC->AHB1ENR &= ~RCC_AHB1ENR_GPIOHEN) : 0)
 
+#define GPIO_PIN_SET                  ENABLE
+#define GPIO_PIN_RESET                DISABLE
 
 void GPIO_Init(gpio_handle_t *gpio_handle);
 uint8_t GPIO_ReadFromInputPin(GPIO_TypeDef *gpiox, uint8_t pin_number);
-void GPIO_ConfigureAlternateFunction(gpio_handle_t *gpio_handle);
+void GPIO_WriteToOutputPin(GPIO_TypeDef *gpiox, uint8_t pin_number, uint8_t data_to_write);
 
 
 
