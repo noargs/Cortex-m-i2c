@@ -61,8 +61,8 @@ typedef struct
 #define GPIO_PIN_14                   14
 #define GPIO_PIN_15                   15
 
-#define GPIO_PIN_SET                  ENABLE
-#define GPIO_PIN_RESET                DISABLE
+#define GPIO_PIN_SET                  1U
+#define GPIO_PIN_RESET                0U
 
 
 #define GPIO_PCLK_EN(x)               ((x == GPIOA) ? (RCC->AHB1ENR |= RCC_AHB1ENR_GPIOAEN) :\
@@ -82,9 +82,6 @@ typedef struct
                                        (x == GPIOF) ? (RCC->AHB1ENR &= ~RCC_AHB1ENR_GPIOFEN) :\
                                        (x == GPIOG) ? (RCC->AHB1ENR &= ~RCC_AHB1ENR_GPIOGEN) :\
                                        (x == GPIOH) ? (RCC->AHB1ENR &= ~RCC_AHB1ENR_GPIOHEN) : 0)
-
-#define GPIO_PIN_SET                  ENABLE
-#define GPIO_PIN_RESET                DISABLE
 
 void GPIO_Init(gpio_handle_t *gpio_handle);
 uint8_t GPIO_ReadFromInputPin(GPIO_TypeDef *gpiox, uint8_t pin_number);

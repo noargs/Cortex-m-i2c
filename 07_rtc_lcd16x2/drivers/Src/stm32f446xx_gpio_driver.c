@@ -58,14 +58,14 @@ uint8_t GPIO_ReadFromInputPin(GPIO_TypeDef *gpiox, uint8_t pin_number)
   return ((gpiox->IDR >> pin_number) & 0x00000001);
 }
 
-void GPIO_WriteToOutputPin(GPIO_TypeDef *gpiox, uint8_t pin_number, uint8_t data_to_write)
+void GPIO_WriteToOutputPin(GPIO_TypeDef *gpiox, uint8_t pin_number, uint8_t value)
 {
-  if (data_to_write == GPIO_PIN_SET)
+  if (value == GPIO_PIN_SET)
   {
-	gpiox->ODR |= (1 << pin_number);
+	gpiox->ODR |= (0x1 << pin_number);
   }
   else
   {
-	gpiox->ODR &= ~(1 << pin_number);
+	gpiox->ODR &= ~(0x1 << pin_number);
   }
 }

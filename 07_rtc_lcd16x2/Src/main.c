@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdint.h>
 #include "ds1307.h"
+#include "lcd.h"
 #include "debug_uart.h"
 
 #define SYSTICK_TIM_CLK               16000000UL
@@ -17,6 +18,12 @@ void init_date_time(void);
 void output_date_time(void);
 void systick_init(uint32_t tick_hz);
 
+
+// DO NOT USE:
+//            PA0,PA5(LD2),PC13(USER) (by MCUs)
+//            PA2,PA3 (Busy in USART)
+//            PB8,PB9 (Busy in I2C)
+
 rtc_date_t current_date;
 rtc_time_t current_time;
 
@@ -24,6 +31,14 @@ int main(void)
 {
   DebugUART_Init();
 
+  lcd_init();
+
+  lcd_print_string("Allhamdulilah");
+
+  lcd_mdelay(2000);
+
+  lcd_display_clear();
+  lcd_display_return_home();
 
   if (ds1307_init())
   {
@@ -76,13 +91,23 @@ void output_date_time(void)
   {
 	am_pm = (current_time.time_fmt) ? "AM" : "PM";
 	printf("%s %s - ", time_to_string(&current_time), am_pm); // 07:41:36 AM
+	lcd_set_cursor(1, 1);
+	lcd_print_string(time_to_string(&current_time));
+	lcd_print_string(am_pm);
   }
   else
   {
 	printf("%s - ", time_to_string(&current_time)); // 07:41:36
+	lcd_set_cursor(1,1);
+	lcd_print_string(time_to_string(&current_time));
   }
 
   printf("%s %s \n\r", date_to_string(&current_date), get_day_of_week(current_date.day));
+  lcd_set_cursor(2, 1);
+  lcd_print_string(date_to_string(&current_date));
+  lcd_print_char('<');
+  lcd_print_string(get_day_of_week(current_date.day));
+  lcd_print_char('>');
 }
 
 void systick_init(uint32_t tick_hz)
