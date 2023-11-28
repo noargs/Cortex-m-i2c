@@ -28,8 +28,8 @@ static void DebugUART_gpio_config(void)
 
   gpio_handle_t usart2_tx, usart2_rx;
 
-//  memset(&usart2_tx, 0, sizeof(usart2_tx));
-//  memset(&usart2_rx, 0, sizeof(usart2_rx));
+  memset(&usart2_tx, 0, sizeof(usart2_tx));
+  memset(&usart2_rx, 0, sizeof(usart2_rx));
 
   usart2_tx.gpiox                   = DEBUG_UART_GPIO_PORT;
   usart2_tx.gpio_config.pin_alt_fun = AF7;

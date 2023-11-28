@@ -29,7 +29,7 @@
 #define LM75B_TEMPERATURE_POSITIVE    0x0
 
 void lm75b_init(void);
-void lm75b_basic_temperature(float* temp);
+void lm75b_get_temperature(float* temp);
 
 
 #endif /* INC_LM75B_H_ */
