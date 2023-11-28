@@ -25,8 +25,11 @@
 #define LM75B_ADDR_THYST              0x02
 #define LM75B_ADDR_TOS                0x03
 
+#define LM75B_TEMPERATURE_NEGATIVE    0x1
+#define LM75B_TEMPERATURE_POSITIVE    0x0
+
 void lm75b_init(void);
-void lm75b_basic_temp(float *temp);
+void lm75b_basic_temperature(float* temp);
 
 
 #endif /* INC_LM75B_H_ */
