@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>01_master_send_data</name>
+	<name>06_i2c_rtc</name>
 	<comment></comment>
 	<projects>
 	</projects>

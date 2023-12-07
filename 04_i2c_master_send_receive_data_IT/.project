@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>05_slave_send_receive_data_IT</name>
+	<name>04_i2c_master_send_receive_data_IT</name>
 	<comment></comment>
 	<projects>
 	</projects>

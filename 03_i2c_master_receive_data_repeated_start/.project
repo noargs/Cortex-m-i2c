@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>05_slave_send_receive_over_32bytes_IT</name>
+	<name>03_i2c_master_receive_data_repeated_start</name>
 	<comment></comment>
 	<projects>
 	</projects>

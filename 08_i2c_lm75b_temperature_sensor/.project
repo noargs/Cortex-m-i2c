@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>02_master_receive_data</name>
+	<name>08_i2c_lm75b_temperature_sensor</name>
 	<comment></comment>
 	<projects>
 	</projects>

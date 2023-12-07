@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>04_master_send_receive_data_IT</name>
+	<name>07_i2c_rtc_lcd16x2</name>
 	<comment></comment>
 	<projects>
 	</projects>
