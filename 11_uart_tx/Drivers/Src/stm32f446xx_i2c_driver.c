@@ -1,10 +1,5 @@
 #include "stm32f446xx_i2c_driver.h"
-
-
-static uint32_t RCC_GetPCLK1Value(void);
-
-uint16_t hpre[8]  = {2, 4, 8, 16, 64, 128, 256, 512};
-uint8_t  ppre1[4] = {2, 4, 8, 16};
+#include "stm32f446xx_rcc_driver.h"
 
 void I2C_Init (i2c_handle_t *i2c_handle)
 {
@@ -197,51 +192,6 @@ void I2C_MasterReceiveData(i2c_handle_t *i2c_handle, uint8_t *rx_buffer, uint32_
   i2c_handle->i2cx->CR1 |= I2C_CR1_ACK;
 }
 
-
-static uint32_t RCC_GetPCLK1Value(void)
-{
-  uint32_t system_clock;
-  uint8_t clock_source, temp, ahb_prescaler, apb1_prescaler;
-
-  // [SWS: System clock switch status] RM page: 133 (for Nucleo-f446re)
-  clock_source = ((RCC->CFGR >> 2) & 0x3);
-
-  if (clock_source == RCC_CFGR_SWS_HSI)
-  {
-	system_clock = 16000000;
-  }
-  else if (clock_source == RCC_CFGR_SWS_HSE)
-  {
-	system_clock = 8000000;
-  }
-
-  // [HPRE: AHB prescaler] RM page: 133 (for Nucleo-f446re)
-  temp = ((RCC->CFGR >> 4) & 0xF);
-
-  if (temp < 8)
-  {
-	ahb_prescaler = 1;
-  }
-  else
-  {
-	ahb_prescaler = hpre[temp-8];
-  }
-
-  // [PPRE1: APB Low speed prescaler (APB1)] RM page: 132 (for Nucleo-f446re)
-  temp = ((RCC->CFGR >> 10) & 0x7);
-
-  if (temp < 4)
-  {
-	apb1_prescaler = 1;
-  }
-  else
-  {
-	apb1_prescaler = ppre1[temp-4];
-  }
-
-  return (uint32_t)((system_clock/ahb_prescaler)/apb1_prescaler);
-
-}
 
 void I2C_ClearBusyFlagErratum(gpio_handle_t* i2c_scl, gpio_handle_t* i2c_sda, i2c_handle_t *i2c_handle )
 {

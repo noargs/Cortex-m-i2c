@@ -42,6 +42,10 @@ typedef struct
                                            (x == I2C2) ? (RCC->APB1ENR &= ~RCC_APB1ENR_I2C2EN) :\
                                            (x == I2C3) ? (RCC->APB1ENR &= ~RCC_APB1ENR_I2C3EN) : 0)
 
+#define SYSTEM_CLOCK_SWS_HSI              0U
+#define SYSTEM_CLOCK_SWS_HSE              1U
+#define SYSTEM_CLOCK_SWS_PLL              2U
+#define SYSTEM_CLOCK_SWS_PLL_R            3U
 
 void I2C_Init(i2c_handle_t *i2c_handle);
 

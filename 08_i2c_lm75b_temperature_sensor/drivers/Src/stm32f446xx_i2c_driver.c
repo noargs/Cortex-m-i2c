@@ -206,11 +206,11 @@ static uint32_t RCC_GetPCLK1Value(void)
   // [SWS: System clock switch status] RM page: 133 (for Nucleo-f446re)
   clock_source = ((RCC->CFGR >> 2) & 0x3);
 
-  if (clock_source == RCC_CFGR_SWS_HSI)
+  if (clock_source == SYSTEM_CLOCK_SWS_HSI)
   {
 	system_clock = 16000000;
   }
-  else if (clock_source == RCC_CFGR_SWS_HSE)
+  else if (clock_source == SYSTEM_CLOCK_SWS_HSE)
   {
 	system_clock = 8000000;
   }
