@@ -168,3 +168,11 @@ static void USART_SetBaudrate(USART_TypeDef* usartx, uint32_t desired_baudrate)
 
   usartx->BRR = temp_reg;
 }
+
+void USART_PeripheralControl(USART_TypeDef* usartx, uint8_t ENABLE_OR_DISABLE)
+{
+  if (ENABLE_OR_DISABLE == ENABLE)
+	usartx->CR1 |= USART_CR1_UE;
+  else
+	usartx->CR1 &= ~USART_CR1_UE;
+}

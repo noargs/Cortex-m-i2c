@@ -66,6 +66,8 @@ typedef struct
 
 
 void USART_Init(usart_handle_t *usart_handle);
+void USART_PeripheralControl(USART_TypeDef* usartx, uint8_t ENABLE_OR_DISABLE);
+
 void USART_SendData(usart_handle_t* usart_handle, uint8_t* tx_buffer, uint32_t length);
 void USART_ReceiveData(usart_handle_t* usart_handle, uint8_t* rx_buffer, uint32_t length);
 void USART_SendChar(USART_TypeDef *usartx, int ch);

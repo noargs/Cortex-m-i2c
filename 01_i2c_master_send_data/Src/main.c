@@ -4,7 +4,7 @@
 
 //     -- [ I2C Master (STM32) and I2C Slave (Arduino board) communication ] --
 //
-// External Button PC2 (Pull-down activated), connected to Vdd on button other side, on STM32 (Master) is pressed, Master send data to Slave (Arduino)
+// External Button PC2 (Pull-down activated), other side of the button connected to Vdd, on STM32 (Master) button press, Master send data to Slave (Arduino)
 // Data received on Arduino (Slave) will be displayed on Serial Monitor of Arduino IDE
 //
 // 1. Use I2C SCL = 100KHz (SM)
